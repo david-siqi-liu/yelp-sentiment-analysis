@@ -1,7 +1,44 @@
-yelp_sentiment_analysis
+Yelp Reviews Sentiment Analysis
 ==============================
 
 Empirical analysis of various ML/AL algorithms on text classification task on the Yelp review dataset
+
+## Data
+
+- Restaurants
+- Toronto
+- +10 reviews
+
+# Packages
+
+- Pre-processing: NLTK
+- ML: scikit-learn
+
+## Algorithms
+
+- Multinomial Naive Bayes
+- Logistic Regression
+- SVM
+- Random Forest
+- LSTM
+- BERT
+
+## Tests
+
+Impacts of
+
+- Balanced dataset vs. Imbalanced dataset (baseline)
+- Small training size vs. large training size (baseline)
+- N-gram vs. unigram (baseline)
+- Normalization (stemming/lemmatization)
+- Noise removal (punctuations, special characters, hyperlinks)
+
+## Metrics
+
+- TP, TN, FP, FN
+- Accuracy
+- F-score
+- Matthews correlation correfficient
 
 Project Organization
 ------------
@@ -50,7 +87,6 @@ Project Organization
     │       └── visualize.py
     │
     └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
-
 
 --------
 
