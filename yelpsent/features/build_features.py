@@ -2,60 +2,74 @@
 build_features
 """
 
-from sklearn.feature_extraction.text import CountVectorizer
-from nltk import download
-from nltk.tokenize import RegexpTokenizer
-from nltk.corpus import stopwords
+from sklearn.base import BaseEstimator, TransformerMixin
+from nltk.corpus import wordnet
+from nltk import sent_tokenize
+from nltk import word_tokenize
 
 
-def get_regexp_tokenizer(regexp=r'[a-zA-Z0-9]+') -> RegexpTokenizer:
-    """Returns a regular expression tokenizer
+class PreProcessor(BaseEstimator, TransformerMixin):
 
-    :param regexp: regular expression sequence
-    :return: RegexpTokenizer
-    """
+    def __init__(self, stopwords=None, stemmer=None,
+                 lemmatizer=None, pos_tagger=None):
+        self.stopwords = stopwords
+        self.stemmer = stemmer
+        self.lemmatizer = lemmatizer
+        self.pos_tagger = pos_tagger
 
-    return RegexpTokenizer(regexp)
+    def fit(self, X, y=None):
+        return self
 
+    def transform(self, X):
+        return [
+            list(self.tokenize(review)) for review in X
+        ]
 
-def get_stop_words(language='english') -> list:
-    """Returns a list of stop words
+    def tokenize(self, review):
+        # Break the review into sentences
+        for sent in sent_tokenize(review):
+            # Break the sentence into words
+            for token in word_tokenize(sent):
+                # Apply pre-processing to the token
 
-    :param language: language, english by default
-    :return: list of stop words
-    """
-    download('stopwords')
+                # Lower-case and strip
+                token = token.lower()
+                token = token.strip()
 
-    return stopwords.words(language)
+                # Part-of-speech tagging
+                if self.pos_tagger:
+                    token, tag = self.pos_tagger(token)
+                else:
+                    token, tag = token, None
 
+                # Stopwords
+                if token in self.stopwords:
+                    continue
 
-def get_count_vectorizer(words, tokenizer=None, stop_words=None, ngram_range=(1, 1)) -> CountVectorizer:
-    """Returns a CountVectorizer using all words in the given list
+                # Stemming
+                if self.stemmer:
+                    token = self.stemmer.stem(token)
 
-    :param words: list of words
-    :param stop_words: list of stop words
-    :param ngram_range:
-    :param tokenizer:
-    :return: CountVectorizer
-    """
-    if tokenizer:
-        cv = CountVectorizer(tokenizer=tokenizer.tokenize, stop_words=stop_words, ngram_range=ngram_range)
-    else:
-        cv = CountVectorizer(stop_words=stop_words, ngram_range=ngram_range)
+                # Lemmatization
+                if self.lemmatizer:
+                    token = self.lemmatize(token, tag)
 
-    cv.fit(words)
-    return cv
+                yield token
+
+    def lemmatize(self, token, tag):
+        if tag:
+            tag = {
+                'N': wordnet.NOUN,
+                'V': wordnet.VERB,
+                'R': wordnet.ADV,
+                'J': wordnet.ADJ
+            }.get(tag[0], wordnet.NOUN)
+            return self.lemmatizer.lemmatize(token, tag)
+        else:
+            return self.lemmatizer.lemmatize(token, 'v')
 
 
 def get_examples(phrase, dtm, cv, n=5) -> list:
-    """
-
-    :param n:
-    :param phrase:
-    :param dtm:
-    :param cv:
-    :return:
-    """
     idx = cv.get_feature_names().index(phrase)
     examples = []
 
