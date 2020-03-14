@@ -1,7 +1,7 @@
 Yelp Reviews Sentiment Analysis
 ==============================
 
-Empirical analysis of various ML/AL algorithms on text classification task on the Yelp review dataset
+Empirical analysis of various ML/AL algorithms and text pre-processing techniques on text classification task on the Yelp review dataset
 
 ## Data
 
@@ -9,36 +9,60 @@ Empirical analysis of various ML/AL algorithms on text classification task on th
 - Toronto
 - +10 reviews
 
-# Packages
+## Metrics
 
-- Pre-processing: NLTK
-- ML: scikit-learn
+- **sklearn.metrics.classification_report**
+  - Precision
+  - Recall
+  - F-1
+  - Both Macro and Micro averages
+
+## Baseline for Dataset and Pre-Processing Tests
+
+- Model: Multinomial Naive Bayes (**sklearn.naive_bayes.MultinomialNB**)
+  - Default parameters (alpha = 1.0, fit_prior = True, class_prior = None)
+
+- Data
+  - 270k training data, 90k testing data
+  - Class ratios: 9%, 10%, 18%, 33%, 30%
+- Pre-processing (both training and testing)
+  - Unigram
+  - Word tokenized, bag-of-words (**CountVectorizer**)
+  - Lower-cased
+
+## Dataset Tests
+
+- Sample size
+  - Downsample 270k trainig data to 1k, 60k, 130k, 200k
+- Class balance
+  - Downsample all classes to 25k each, total of 125k
+
+## Pre-Processing Tests
+
+- Number of ngrams
+  - Unigrams + Birams, Unigrams + Bigrams + Trigrams
+- Removes non-words/numbers (**nltk.tokenize.RegexpTokenizer**)
+- Removes stopwords (**nltk.corpus.stopwords**)
+- Stemming (**nltk.stem.porter.PorterStemmer**)
+- Lemmatization (**nltk.stem.wordnet.WordNetLemmatizer**)
+- POS Tagging (**nltk.post_tag**)
+- Feature generated using TF-IDF (Term Frequency-Inverse Document Frequency) (**TFidfVectorizer**)
+
+## Baseline for Algorithmic Tests
+
+- Model: Multinomial Naive Bayes
+  - Best set of pre-processing tests
+- Ten-fold cross-validated
 
 ## Algorithms
 
-- Multinomial Naive Bayes
+- Maximum Entropy
+- Ordinal Regression
 - Logistic Regression
 - SVM
-- Random Forest
+- XGBoost
 - LSTM
 - BERT
-
-## Tests
-
-Impacts of
-
-- Balanced dataset vs. Imbalanced dataset (baseline)
-- Small training size vs. large training size (baseline)
-- N-gram vs. unigram (baseline)
-- Normalization (stemming/lemmatization)
-- Noise removal (punctuations, special characters, hyperlinks)
-
-## Metrics
-
-- TP, TN, FP, FN
-- Accuracy
-- F-score
-- Matthews correlation correfficient
 
 Project Organization
 ------------
