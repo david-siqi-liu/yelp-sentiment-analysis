@@ -6,16 +6,15 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from nltk.corpus import wordnet
 from nltk import sent_tokenize
 from nltk import word_tokenize
+from nltk import pos_tag
 
 
 class PreProcessor(BaseEstimator, TransformerMixin):
 
-    def __init__(self, stopwords=None, stemmer=None,
-                 lemmatizer=None, pos_tagger=None):
+    def __init__(self, stopwords=None, stemmer=None, lemmatizer=None):
         self.stopwords = stopwords
         self.stemmer = stemmer
         self.lemmatizer = lemmatizer
-        self.pos_tagger = pos_tagger
 
     def fit(self, X, y=None):
         return self
@@ -28,19 +27,13 @@ class PreProcessor(BaseEstimator, TransformerMixin):
     def tokenize(self, review):
         # Break the review into sentences
         for sent in sent_tokenize(review):
-            # Break the sentence into words
-            for token in word_tokenize(sent):
+            # Break the sentence into part-of-speech (POS) tagged tokens
+            for token, tag in pos_tag(word_tokenize(sent)):
                 # Apply pre-processing to the token
 
                 # Lower-case and strip
                 token = token.lower()
                 token = token.strip()
-
-                # Part-of-speech tagging
-                if self.pos_tagger:
-                    token, tag = self.pos_tagger(token)
-                else:
-                    token, tag = token, None
 
                 # Stopwords
                 if token in self.stopwords:
@@ -57,16 +50,14 @@ class PreProcessor(BaseEstimator, TransformerMixin):
                 yield token
 
     def lemmatize(self, token, tag):
-        if tag:
-            tag = {
-                'N': wordnet.NOUN,
-                'V': wordnet.VERB,
-                'R': wordnet.ADV,
-                'J': wordnet.ADJ
-            }.get(tag[0], wordnet.NOUN)
-            return self.lemmatizer.lemmatize(token, tag)
-        else:
-            return self.lemmatizer.lemmatize(token, 'v')
+        tag = {
+            'N': wordnet.NOUN,
+            'V': wordnet.VERB,
+            'R': wordnet.ADV,
+            'J': wordnet.ADJ
+        }.get(tag[0], wordnet.NOUN)
+
+        return self.lemmatizer.lemmatize(token, tag)
 
 
 def get_examples(phrase, dtm, cv, n=5) -> list:
