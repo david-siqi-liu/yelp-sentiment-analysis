@@ -27,3 +27,23 @@ def load_dataset(train, test) -> (pd.DataFrame, pd.DataFrame):
         raise FileNotFoundError("{0} does not exist!".format(test_path.resolve()))
 
     return pd.read_json(train_path), pd.read_json(test_path)
+
+
+def sample_dataset(data, k, balance=False) -> pd.DataFrame:
+    """Randomly sample a given dataset
+
+    :param data: DataFrame of the data (two columns: review, sentiment)
+    :param k: desired total number of data points (across all classes)
+    :param balance: to balance class ratio or not
+    :return: a DataFrame of the sampled data
+    """
+    g = data.groupby('sentiment')
+
+    if balance:
+        n = min(g.size().min(), k // len(g))
+        sample_data = g.apply(lambda x: x.sample(n=n)).reset_index(drop=True)
+    else:
+        frac = float(k) / float(data.shape[0])
+        sample_data = g.apply(lambda x: x.sample(frac=frac)).reset_index(drop=True)
+
+    return sample_data
