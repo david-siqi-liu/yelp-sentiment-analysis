@@ -18,7 +18,7 @@ def load_dataset(train, test) -> (pd.DataFrame, pd.DataFrame):
     test_path = Path(test)
 
     if train_path.suffix != '.json' or test_path.suffix != '.json':
-        raise TypeError("Please provide JSON files!")
+        raise TypeError("Plase provide JSON files!")
 
     if not train_path.exists():
         raise FileNotFoundError("{0} does not exist!".format(train_path.resolve()))
